@@ -1,0 +1,199 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Blog API — INF222 EC1 Taf1",
+    "version": "1.0.0",
+    "description": "API RESTful de gestion d'articles de blog.\n\n**Technologies :** Node.js, Express, SQLite, Swagger\n\n**Auteur :** NATOLO JUNIOR — 22T2943"
+  },
+  "servers": [
+    { "url": "http://localhost:8080", "description": "Serveur local" }
+  ],
+  "tags": [
+    { "name": "Articles", "description": "Gestion des articles du blog" }
+  ],
+  "paths": {
+    "/api/articles": {
+      "post": {
+        "tags": ["Articles"],
+        "summary": "Créer un article",
+        "description": "Crée un nouvel article et le persiste en base de données SQLite.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ArticleRequest" },
+              "example": {
+                "titre": "Mon premier article",
+                "contenu": "Contenu de l'article avec au moins 10 caractères.",
+                "auteur": "NATOLO JUNIOR",
+                "categorie": "Tech",
+                "tags": ["javascript", "nodejs", "api"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Article créé avec succès",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Article" }
+              }
+            }
+          },
+          "400": { "description": "Données invalides (champ manquant ou trop court)" },
+          "500": { "description": "Erreur interne du serveur" }
+        }
+      },
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Lister les articles",
+        "description": "Récupère tous les articles avec filtres optionnels.",
+        "parameters": [
+          {
+            "name": "categorie",
+            "in": "query",
+            "description": "Filtrer par catégorie (ex: Tech, DevOps)",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "auteur",
+            "in": "query",
+            "description": "Filtrer par auteur",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Filtrer les articles postérieurs à cette date (format: YYYY-MM-DD)",
+            "schema": { "type": "string", "example": "2026-03-18" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des articles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Article" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/articles/search": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Rechercher des articles",
+        "description": "Recherche dans le titre et le contenu des articles.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "description": "Texte à rechercher",
+            "schema": { "type": "string", "example": "javascript" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultats de la recherche",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Article" }
+                }
+              }
+            }
+          },
+          "400": { "description": "Paramètre query manquant ou vide" }
+        }
+      }
+    },
+    "/api/articles/{id}": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Obtenir un article par ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true,
+            "schema": { "type": "integer", "example": 1 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article trouvé",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Article" }
+              }
+            }
+          },
+          "404": { "description": "Article introuvable" }
+        }
+      },
+      "put": {
+        "tags": ["Articles"],
+        "summary": "Modifier un article",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true,
+            "schema": { "type": "integer", "example": 1 } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ArticleRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Article mis à jour" },
+          "400": { "description": "Données invalides" },
+          "404": { "description": "Article introuvable" }
+        }
+      },
+      "delete": {
+        "tags": ["Articles"],
+        "summary": "Supprimer un article",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true,
+            "schema": { "type": "integer", "example": 1 } }
+        ],
+        "responses": {
+          "200": { "description": "Article supprimé avec succès" },
+          "404": { "description": "Article introuvable" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ArticleRequest": {
+        "type": "object",
+        "required": ["titre", "contenu", "auteur"],
+        "properties": {
+          "titre"     : { "type": "string", "minLength": 3,  "example": "Mon article" },
+          "contenu"   : { "type": "string", "minLength": 10, "example": "Contenu de l'article..." },
+          "auteur"    : { "type": "string",                  "example": "NATOLO JUNIOR" },
+          "categorie" : { "type": "string",                  "example": "Tech" },
+          "tags"      : { "type": "array", "items": { "type": "string" }, "example": ["js","api"] }
+        }
+      },
+      "Article": {
+        "type": "object",
+        "properties": {
+          "id"        : { "type": "integer", "example": 1 },
+          "titre"     : { "type": "string",  "example": "Mon article" },
+          "contenu"   : { "type": "string",  "example": "Contenu de l'article..." },
+          "auteur"    : { "type": "string",  "example": "NATOLO JUNIOR" },
+          "date"      : { "type": "string",  "example": "2026-03-22T10:00:00.000Z" },
+          "categorie" : { "type": "string",  "example": "Tech" },
+          "tags"      : { "type": "array", "items": { "type": "string" }, "example": ["js","api"] }
+        }
+      }
+    }
+  }
+}
