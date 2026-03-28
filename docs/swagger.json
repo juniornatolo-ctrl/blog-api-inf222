@@ -1,0 +1,36 @@
+
+{
+    "openapi": "3.0.0",
+    "info" : {
+        "title": "Blog API",
+        "version": "1.0.0",
+        "description" : "API de gestion de Blog"
+    },
+    "servers":[
+        {
+            "url": "http://localhost:3000"
+
+        }
+    ],
+"paths": {
+    "/api/articles": {
+        "get": {
+            "sumary":"obtenir tous les articles",
+            "responses": {
+                "200": {
+                    "description": "Succes"
+                }
+            }
+        },
+        "post":{
+            "summary": "Creer un article",
+            "responses":{
+                "201":{
+                    "description": "Article cree"
+                }
+            }
+        }
+    }
+}
+    }
+
